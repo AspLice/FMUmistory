@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CR海物語</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Matter.js 物理エンジン (CDN) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+</head>
+<body>
+
+<!-- ========== メインラッパー ========== -->
+<div id="pachinko-wrapper">
+
+    <!-- 閉じるボタン -->
+    <button id="btn-close" title="閉じる (Esc)">✕</button>
+
+    <!-- ========== 盤面エリア ========== -->
+    <div id="board-area">
+        <!-- Matter.js キャンバスがここに挿入される -->
+        <canvas id="physics-canvas"></canvas>
+
+        <!-- 液晶画面（スロット） -->
+        <div id="lcd-screen">
+            <!-- 海の背景演出レイヤー -->
+            <div id="sea-bg">
+                <div class="bubble" style="left:10%;animation-duration:4s;animation-delay:0s"></div>
+                <div class="bubble" style="left:30%;animation-duration:5s;animation-delay:1s"></div>
+                <div class="bubble" style="left:55%;animation-duration:3.5s;animation-delay:0.5s"></div>
+                <div class="bubble" style="left:75%;animation-duration:6s;animation-delay:1.5s"></div>
+                <div class="wave"></div>
+            </div>
+
+            <!-- スロットリール -->
+            <div id="reels-container">
+                <div class="reel-frame">
+                    <div class="reel" id="reel-0">
+                        <div class="reel-strip" id="strip-0">
+                            <!-- JSで動的生成 -->
+                        </div>
+                    </div>
+                </div>
+                <div class="reel-frame">
+                    <div class="reel" id="reel-1">
+                        <div class="reel-strip" id="strip-1"></div>
+                    </div>
+                </div>
+                <div class="reel-frame">
+                    <div class="reel" id="reel-2">
+                        <div class="reel-strip" id="strip-2"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- リーチ演出テキスト -->
+            <div id="reach-text" class="hidden"></div>
+
+            <!-- 大当たり表示 -->
+            <div id="jackpot-banner" class="hidden">
+                <span class="jackpot-label">大当たり！</span>
+                <span id="jackpot-rounds-label"></span>
+            </div>
+
+            <!-- 確変バッジ -->
+            <div id="kakuhen-badge" class="hidden">KAKUHEN<br>確変中</div>
+
+            <!-- 魚群演出レイヤー -->
+            <div id="gyogun-layer" class="hidden">
+                <div class="fish-group">
+                    <span>🐟</span><span>🐟</span><span>🐠</span>
+                    <span>🐟</span><span>🐡</span><span>🐟</span>
+                    <span>🐠</span><span>🐟</span><span>🦈</span>
+                </div>
+            </div>
+        </div>
+        <!-- /lcd-screen -->
+
+        <!-- チャッカー入賞エフェクト -->
+        <div id="chakker-flash" class="hidden"></div>
+    </div>
+    <!-- /board-area -->
+
+    <!-- ========== コントロールパネル ========== -->
+    <div id="control-panel">
+
+        <!-- 玉数・状態表示 -->
+        <div id="status-bar">
+            <div class="status-item">
+                <span class="status-label">持ち玉</span>
+                <span class="status-value" id="ball-count">0</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">確変</span>
+                <span class="status-value" id="kakuhen-status">OFF</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">ラウンド</span>
+                <span class="status-value" id="round-status">-</span>
+            </div>
+        </div>
+
+        <!-- ハンドル（打ち出し強度）-->
+        <div id="handle-section">
+            <label for="handle-slider" class="handle-label">🎮 ハンドル</label>
+            <input type="range" id="handle-slider" min="0" max="100" value="50" step="1">
+            <span id="handle-value">50</span>%
+        </div>
+
+        <!-- 打ち出しON/OFFトグル -->
+        <div id="launch-section">
+            <button id="btn-launch" class="btn-primary">打ち出し 開始</button>
+        </div>
+
+        <!-- 玉購入エリア -->
+        <div id="buy-section">
+            <label for="buy-amount" class="buy-label">玉を購入</label>
+            <div class="buy-row">
+                <input type="number" id="buy-amount" value="100" min="1" max="500" step="1">
+                <button id="btn-buy" class="btn-secondary">購入</button>
+            </div>
+            <div class="buy-hint">1玉 = $4 | 最大500玉</div>
+        </div>
+
+        <!-- 換金ボタン -->
+        <div id="cashout-section">
+            <button id="btn-cashout" class="btn-cashout">換　金</button>
+        </div>
+
+    </div>
+    <!-- /control-panel -->
+
+    <!-- ========== ラウンドオーバーレイ ========== -->
+    <div id="round-overlay" class="hidden">
+        <div class="round-box">
+            <div id="round-title">ROUND</div>
+            <div id="round-number">1</div>
+            <div id="round-sub"></div>
+        </div>
+    </div>
+
+    <!-- ========== 換金完了モーダル ========== -->
+    <div id="cashout-modal" class="hidden">
+        <div class="modal-box">
+            <div class="modal-title">🎉 換金完了</div>
+            <div id="cashout-result"></div>
+            <button id="btn-cashout-ok" class="btn-primary">OK</button>
+        </div>
+    </div>
+
+</div>
+<!-- /pachinko-wrapper -->
+
+<script src="script.js"></script>
+</body>
+</html>
